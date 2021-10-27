@@ -5,12 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@color/white"
     tools:context=".display.DetailFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint_edit"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="visible">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
