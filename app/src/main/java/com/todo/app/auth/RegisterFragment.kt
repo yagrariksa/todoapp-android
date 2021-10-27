@@ -1,13 +1,20 @@
 package com.todo.app.auth
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputLayout
+import com.todo.app.DisplayActivity
+import com.todo.app.MainActivity
 import com.todo.app.R
 
 // TODO: Rename parameter arguments, choose names that match
@@ -54,6 +61,57 @@ class RegisterFragment : Fragment() {
 
         login.setOnClickListener {
             findNavController().navigate(R.id.action_registerFragment_to_loginFragment)
+        }
+
+        val inputName = view.findViewById<TextInputLayout>(R.id.input_nama)
+        val inputEmail = view.findViewById<TextInputLayout>(R.id.input_email)
+        val inputPassword = view.findViewById<TextInputLayout>(R.id.input_password)
+
+        val register = view.findViewById<MaterialButton>(R.id.btn_register)
+
+        register.isEnabled = false
+
+        register.setOnClickListener {
+            // Request API
+            if (MainActivity.isConnected(requireContext())) {
+                val intent = Intent(context, DisplayActivity::class.java)
+                startActivity(intent)
+                activity?.finish()
+            } else {
+                Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        inputName.editText?.addTextChangedListener(object :
+            MyTextWatcher(register, inputEmail, inputName, inputPassword) {})
+
+        inputEmail.editText?.addTextChangedListener(object :
+            MyTextWatcher(register, inputEmail, inputName, inputPassword) {})
+
+        inputPassword.editText?.addTextChangedListener(object :
+            MyTextWatcher(register, inputEmail, inputName, inputPassword) {})
+
+    }
+
+    open inner class MyTextWatcher(
+        val register: MaterialButton,
+        val inputEmail: TextInputLayout,
+        val inputName: TextInputLayout,
+        val inputPassword: TextInputLayout
+    ) : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun afterTextChanged(p0: Editable?) {
+            register.isEnabled = !(inputName.editText?.text.toString().isNullOrEmpty() ||
+                    inputEmail.editText?.text.toString().isNullOrEmpty() ||
+                    inputPassword.editText?.text.toString().isNullOrEmpty() ||
+                    !android.util.Patterns.EMAIL_ADDRESS.matcher(inputEmail.editText?.text.toString())
+                        .matches()
+                    )
         }
     }
 

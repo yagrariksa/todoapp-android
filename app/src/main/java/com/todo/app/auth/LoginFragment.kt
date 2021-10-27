@@ -87,33 +87,26 @@ class LoginFragment : Fragment() {
             }
         }
 
-        email.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        email.editText?.addTextChangedListener(object : MyTextWatcher(login, password, email) {})
 
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+        password.editText?.addTextChangedListener(object : MyTextWatcher(login, password, email) {})
+    }
 
-            override fun afterTextChanged(p0: Editable?) {
-                login.isEnabled = !(password.editText?.text.toString().isNullOrEmpty() ||
-                        email.editText?.text.toString().isNullOrEmpty() ||
-                        !android.util.Patterns.EMAIL_ADDRESS.matcher(email.editText?.text.toString())
-                            .matches())
-            }
+    open inner class MyTextWatcher(
+        val login: MaterialButton,
+        val password: TextInputLayout,
+        val email: TextInputLayout
+    ) : TextWatcher {
+        override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-        })
+        override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
 
-        password.editText?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-            override fun afterTextChanged(p0: Editable?) {
-                login.isEnabled = !(password.editText?.text.toString().isNullOrEmpty() ||
-                        email.editText?.text.toString().isNullOrEmpty() ||
-                        !android.util.Patterns.EMAIL_ADDRESS.matcher(email.editText?.text.toString())
-                            .matches())
-            }
-
-        })
+        override fun afterTextChanged(p0: Editable?) {
+            login.isEnabled = !(password.editText?.text.toString().isNullOrEmpty() ||
+                    email.editText?.text.toString().isNullOrEmpty() ||
+                    !android.util.Patterns.EMAIL_ADDRESS.matcher(email.editText?.text.toString())
+                        .matches())
+        }
     }
 
 
