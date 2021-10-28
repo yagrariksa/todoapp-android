@@ -65,4 +65,8 @@ dependencies {
     // Recycler View
     implementation("androidx.recyclerview:recyclerview:1.2.1")
     implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
+
+    // Toggle in style
+    implementation 'nl.bryanderidder:themed-toggle-button-group:1.3.1'
+    implementation 'com.google.android:flexbox:2.0.1'
 }

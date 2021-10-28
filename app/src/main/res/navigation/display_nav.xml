@@ -49,10 +49,15 @@
         android:id="@+id/menuFragment"
         android:name="com.todo.app.display.MenuFragment"
         android:label="fragment_menu"
-        tools:layout="@layout/fragment_menu"></fragment>
+        tools:layout="@layout/fragment_menu" />
     <fragment
         android:id="@+id/detailFragment"
         android:name="com.todo.app.display.DetailFragment"
         android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="todo_id"
+            android:defaultValue="0"
+            app:argType="integer" />
+    </fragment>
 </navigation>

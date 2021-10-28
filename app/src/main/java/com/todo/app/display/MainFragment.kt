@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
 import com.todo.app.R
 
@@ -41,6 +43,10 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
+    private var layoutManager: RecyclerView.LayoutManager? = null
+    private var adapter: TodoAdapter? = null
+
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -52,6 +58,12 @@ class MainFragment : Fragment() {
         val btnMenu = view.findViewById<ImageButton>(R.id.btn_menu)
         btnMenu.setOnClickListener {
             findNavController().navigate(R.id.action_mainFragment_to_menuFragment)
+        }
+
+        val rvMain = view.findViewById<RecyclerView>(R.id.rv_main)
+        rvMain.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = TodoAdapter(R.id.action_mainFragment_to_detailFragment)
         }
     }
 
