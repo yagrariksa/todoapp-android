@@ -1,25 +1,30 @@
 package com.todo.app.auth
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkInfo
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textview.MaterialTextView
 import com.todo.app.DisplayActivity
 import com.todo.app.MainActivity
 import com.todo.app.R
-import kotlin.math.log
+import com.todo.app.network.RequestState
+import com.todo.app.prefs.Preferences
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -36,6 +41,9 @@ class LoginFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var vm: AuthViewModel
+    private lateinit var prefs: Preferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -49,6 +57,9 @@ class LoginFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        vm = ViewModelProvider(requireActivity()).get(AuthViewModel::class.java)
+        prefs = Preferences(requireContext())
     }
 
     override fun onCreateView(
@@ -71,25 +82,71 @@ class LoginFragment : Fragment() {
 
         val login = view.findViewById<MaterialButton>(R.id.btn_login)
 
-        val email = view.findViewById<TextInputLayout>(R.id.input_email)
-        val password = view.findViewById<TextInputLayout>(R.id.input_password)
+        val inputEmail = view.findViewById<TextInputLayout>(R.id.input_email)
+        val inputPassword = view.findViewById<TextInputLayout>(R.id.input_password)
 
         login.isEnabled = false
 
         login.setOnClickListener {
+            activity?.currentFocus.let { v ->
+                val imm = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(v?.windowToken, 0)
+            }
             if (MainActivity.isConnected(requireContext())) {
-                // send data to API
-                val intent = Intent(context, DisplayActivity::class.java)
-                startActivity(intent)
-                activity?.finish()
+                vm.doLogin(
+                    email = inputEmail.editText?.text.toString(),
+                    password = inputPassword.editText?.text.toString()
+                )
             } else {
                 Toast.makeText(context, "No Internet Connection", Toast.LENGTH_SHORT).show()
             }
         }
 
-        email.editText?.addTextChangedListener(object : MyTextWatcher(login, password, email) {})
+        inputEmail.editText?.addTextChangedListener(object :
+            MyTextWatcher(login, inputPassword, inputEmail) {})
 
-        password.editText?.addTextChangedListener(object : MyTextWatcher(login, password, email) {})
+        inputPassword.editText?.addTextChangedListener(object :
+            MyTextWatcher(login, inputPassword, inputEmail) {})
+
+        vm.data.observe({ lifecycle }, { data ->
+            Log.e("API", data.toString())
+            if (data.status == true) {
+                prefs.token = data.data?.token.toString()
+                prefs.userName = data.data?.name
+                prefs.userId = data.data?.id.toString()
+
+                val intent = Intent(context, DisplayActivity::class.java)
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+                startActivity(intent)
+                activity?.finish()
+            } else {
+                Toast.makeText(context, "Gagal Login", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        vm.error.observe({ lifecycle }, { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+        })
+
+        vm.status.observe({ lifecycle }, { status ->
+            when (status) {
+                RequestState.REQUEST_ERROR -> {
+                    login.isEnabled = true
+
+                }
+
+                RequestState.REQUEST_START -> {
+                    login.isEnabled = false
+
+                }
+
+                RequestState.REQEUST_END -> {
+                    login.isEnabled = true
+
+                }
+            }
+        })
     }
 
     open inner class MyTextWatcher(

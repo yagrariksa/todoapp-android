@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.todo.app.auth.AuthViewModel
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -21,6 +22,7 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
