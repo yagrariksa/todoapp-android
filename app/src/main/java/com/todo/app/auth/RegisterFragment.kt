@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.ViewModelProvider
@@ -47,7 +48,6 @@ class RegisterFragment : Fragment() {
             override fun handleOnBackPressed() {
                 activity?.finish()
             }
-
         })
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
@@ -78,6 +78,8 @@ class RegisterFragment : Fragment() {
         val inputName = view.findViewById<TextInputLayout>(R.id.input_nama)
         val inputEmail = view.findViewById<TextInputLayout>(R.id.input_email)
         val inputPassword = view.findViewById<TextInputLayout>(R.id.input_password)
+
+        val spinner = view.findViewById<ProgressBar>(R.id.pgb)
 
         val register = view.findViewById<MaterialButton>(R.id.btn_register)
 
@@ -113,15 +115,15 @@ class RegisterFragment : Fragment() {
             when (status) {
                 RequestState.REQUEST_START -> {
                     register.isEnabled = false
-                    Toast.makeText(context, "REGISTERING....", Toast.LENGTH_SHORT).show()
+                    spinner.visibility = View.VISIBLE
                 }
                 RequestState.REQEUST_END -> {
                     register.isEnabled = true
-                    Toast.makeText(context, "WAITING RESPONSE", Toast.LENGTH_SHORT).show()
+                    spinner.visibility = View.GONE
                 }
                 RequestState.REQUEST_ERROR -> {
                     register.isEnabled = true
-                    Toast.makeText(context, "REGISTER ERROR", Toast.LENGTH_SHORT).show()
+                    spinner.visibility = View.GONE
                 }
             }
         })
@@ -145,7 +147,6 @@ class RegisterFragment : Fragment() {
         vm.error.observe({ lifecycle }, { error ->
             Toast.makeText(context, "Something error :", Toast.LENGTH_SHORT).show()
             Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-
         })
     }
 

@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat.getSystemService
@@ -85,11 +86,14 @@ class LoginFragment : Fragment() {
         val inputEmail = view.findViewById<TextInputLayout>(R.id.input_email)
         val inputPassword = view.findViewById<TextInputLayout>(R.id.input_password)
 
+        val spinner = view.findViewById<ProgressBar>(R.id.pgb)
+
         login.isEnabled = false
 
         login.setOnClickListener {
             activity?.currentFocus.let { v ->
-                val imm = activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+                val imm =
+                    activity?.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
                 imm?.hideSoftInputFromWindow(v?.windowToken, 0)
             }
             if (MainActivity.isConnected(requireContext())) {
@@ -120,8 +124,7 @@ class LoginFragment : Fragment() {
                 startActivity(intent)
                 activity?.finish()
             } else {
-                Toast.makeText(context, "Gagal Login", Toast.LENGTH_SHORT).show()
-                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Gagal Login : " + data.message, Toast.LENGTH_SHORT).show()
             }
         })
 
@@ -131,19 +134,19 @@ class LoginFragment : Fragment() {
 
         vm.status.observe({ lifecycle }, { status ->
             when (status) {
-                RequestState.REQUEST_ERROR -> {
-                    login.isEnabled = true
-                    Toast.makeText(context, "Something Error", Toast.LENGTH_SHORT).show()
-                }
-
                 RequestState.REQUEST_START -> {
                     login.isEnabled = false
-                    Toast.makeText(context, "Sending Request...", Toast.LENGTH_SHORT).show()
+                    spinner.visibility = View.VISIBLE
                 }
 
                 RequestState.REQEUST_END -> {
                     login.isEnabled = true
-                    Toast.makeText(context, "Waiting Response", Toast.LENGTH_SHORT).show()
+                    spinner.visibility = View.GONE
+                }
+
+                RequestState.REQUEST_ERROR -> {
+                    login.isEnabled = true
+                    spinner.visibility = View.GONE
                 }
             }
         })

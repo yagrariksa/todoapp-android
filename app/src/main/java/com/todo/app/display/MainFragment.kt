@@ -1,18 +1,26 @@
 package com.todo.app.display
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textview.MaterialTextView
 import com.todo.app.R
+import com.todo.app.network.RequestState
 import com.todo.app.prefs.Preferences
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.util.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -29,9 +37,12 @@ class MainFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
-    private lateinit var mLayoutManager: RecyclerView.LayoutManager
     private lateinit var mAdapter: TodoAdapter
     private lateinit var prefs: Preferences
+    private lateinit var vm: TodoViewModel
+
+    private lateinit var calendar: Calendar
+    private var dayOfWeek: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +51,35 @@ class MainFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        mLayoutManager = LinearLayoutManager(context)
         mAdapter = TodoAdapter(R.id.action_mainFragment_to_detailFragment)
         prefs = Preferences(requireContext())
+
+        calendar = Calendar.getInstance()
+        when (calendar.get(Calendar.DAY_OF_WEEK)) {
+            Calendar.MONDAY -> {
+                dayOfWeek = 0
+            }
+            Calendar.TUESDAY -> {
+                dayOfWeek = 1
+            }
+            Calendar.WEDNESDAY -> {
+                dayOfWeek = 2
+            }
+            Calendar.THURSDAY -> {
+                dayOfWeek = 3
+            }
+            Calendar.FRIDAY -> {
+                dayOfWeek = 4
+            }
+            Calendar.SATURDAY -> {
+                dayOfWeek = 5
+            }
+            Calendar.SUNDAY -> {
+                dayOfWeek = 6
+            }
+        }
+
+        vm = ViewModelProvider(requireActivity()).get(TodoViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -72,9 +109,47 @@ class MainFragment : Fragment() {
 
         val rvMain = view.findViewById<RecyclerView>(R.id.rv_main)
         rvMain.apply {
-            layoutManager = mLayoutManager
+            layoutManager = LinearLayoutManager(context)
             adapter = mAdapter
         }
+
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+        swipeRefreshLayout.setOnRefreshListener {
+            vm.getAll(dayOfWeek, prefs.token.toString())
+        }
+
+        vm.status.observe({ lifecycle }, { status ->
+            when (status) {
+                RequestState.REQUEST_START -> {
+                }
+                RequestState.REQEUST_END -> {
+                    if (swipeRefreshLayout.isRefreshing) {
+                        Toast.makeText(context, "finish collect data", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                    swipeRefreshLayout.isRefreshing = false
+                }
+                RequestState.REQUEST_ERROR -> {
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        })
+
+
+        vm.data.observe({ lifecycle }, { data ->
+            Log.e("DATA", data.toString())
+            if (data.status == true) {
+                data.data?.let { mAdapter.supplyData(it) }
+            } else {
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        vm.error.observe({ lifecycle }, { error ->
+            Toast.makeText(context, "Something error : " + error, Toast.LENGTH_SHORT).show()
+        })
+
+        vm.getAll(dayOfWeek, prefs.token.toString())
     }
 
     companion object {

@@ -7,12 +7,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ProgressBar
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.todo.app.R
+import com.todo.app.network.RequestState
+import com.todo.app.prefs.Preferences
 import nl.bryanderidder.themedtogglebuttongroup.ThemedToggleButtonGroup
 
 // TODO: Rename parameter arguments, choose names that match
@@ -30,12 +36,20 @@ class DailyFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var mAdapter: TodoAdapter
+    private lateinit var prefs: Preferences
+    private lateinit var vm: TodoViewModel
+    private var day: Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        mAdapter = TodoAdapter(R.id.action_dailyFragment_to_detailFragment)
+        prefs = Preferences(requireContext())
+        vm = ViewModelProvider(requireActivity()).get(TodoViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -45,9 +59,6 @@ class DailyFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_daily, container, false)
     }
-
-    private var layoutManager: RecyclerView.LayoutManager? = null
-    private var adapter: TodoAdapter? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -65,7 +76,7 @@ class DailyFragment : Fragment() {
         val rvDaily = view.findViewById<RecyclerView>(R.id.rv_daily)
         rvDaily.apply {
             layoutManager = LinearLayoutManager(context)
-            adapter = TodoAdapter(R.id.action_dailyFragment_to_detailFragment)
+            adapter = mAdapter
         }
 
         val btnDailyGroup = view.findViewById<ThemedToggleButtonGroup>(R.id.toggle_btn_daily)
@@ -73,17 +84,80 @@ class DailyFragment : Fragment() {
         btnDailyGroup.setOnSelectListener {
             when (it.id) {
                 R.id.btn_day_0 -> {
-                    Log.d("BTN", "Senin")
+                    day = 0
                 }
                 R.id.btn_day_1 -> {
-                    Log.d("BTN", "Selasa")
+                    day = 1
                 }
-                else -> {
-                    Log.d("BTN", "Another")
+                R.id.btn_day_2 -> {
+                    day = 2
+                }
+                R.id.btn_day_3 -> {
+                    day = 3
+                }
+                R.id.btn_day_4 -> {
+                    day = 4
+                }
+                R.id.btn_day_5 -> {
+                    day = 5
+                }
+                R.id.btn_day_6 -> {
+                    day = 6
                 }
             }
+            vm.getAll(day, prefs.token.toString())
         }
 
+        val spinner = view.findViewById<ProgressBar>(R.id.pgb)
+
+        val swipeRefreshLayout = view.findViewById<SwipeRefreshLayout>(R.id.swipe_refresh)
+        swipeRefreshLayout.setOnRefreshListener {
+            vm.getAll(day, prefs.token.toString())
+        }
+
+        vm.status.observe({ lifecycle }, { status ->
+            when (status) {
+                RequestState.REQUEST_START -> {
+                    mAdapter.clearData()
+                    if (!swipeRefreshLayout.isRefreshing){
+                        spinner.visibility = View.VISIBLE
+                    }
+                }
+                RequestState.REQEUST_END -> {
+                    if (swipeRefreshLayout.isRefreshing) {
+                        Toast.makeText(context, "finish collect data", Toast.LENGTH_SHORT)
+                            .show()
+                        swipeRefreshLayout . isRefreshing = false
+                    }else{
+                        spinner.visibility = View.GONE
+                    }
+                }
+                RequestState.REQUEST_ERROR -> {
+                    if (swipeRefreshLayout.isRefreshing) {
+                        Toast.makeText(context, "finish collect data", Toast.LENGTH_SHORT)
+                            .show()
+                        swipeRefreshLayout . isRefreshing = false
+                    }else{
+                        spinner.visibility = View.GONE
+                    }
+                }
+            }
+        })
+
+        vm.data.observe({ lifecycle }, { data ->
+            Log.e("DATA", data.toString())
+            if (data.status == true) {
+                data.data?.let { mAdapter.supplyData(it) }
+            } else {
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        vm.error.observe({ lifecycle }, { error ->
+            Toast.makeText(context, "Something error : " + error, Toast.LENGTH_SHORT).show()
+        })
+
+        vm.getAll(day, prefs.token.toString())
 
     }
 

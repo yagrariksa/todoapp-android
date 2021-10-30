@@ -11,11 +11,18 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.ImageButton
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
+import com.google.android.material.textview.MaterialTextView
 import com.todo.app.R
 import com.todo.app.models.Todo
+import com.todo.app.prefs.Preferences
+import java.time.DayOfWeek
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,7 +39,15 @@ class DetailFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     private var todo_id: Int = 0
+
+    private val items = listOf("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
+
     private lateinit var todoItem: Todo
+    private lateinit var prefs: Preferences
+    private lateinit var vm: TodoViewModel
+
+    private lateinit var sectionEdit: ConstraintLayout
+    private lateinit var sectionView: ConstraintLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,11 +55,24 @@ class DetailFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        activity?.onBackPressedDispatcher?.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (sectionEdit.visibility == View.VISIBLE && todo_id != 0) {
+                    sectionEdit.visibility = View.GONE
+                    sectionView.visibility = View.VISIBLE
+                } else {
+                    todo_id = 0
+                    findNavController().popBackStack()
+                }
+            }
 
-        // catch ID
+        })
+
         todo_id = arguments?.getInt("todo_id")!!
         Log.e("ID", todo_id.toString())
-        // fetch One Todo Item
+
+        prefs = Preferences(requireContext())
+        vm = ViewModelProvider(requireActivity()).get(TodoViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -58,14 +86,17 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val sectionEdit = view.findViewById<ConstraintLayout>(R.id.constraint_edit)
-        val sectionView = view.findViewById<ConstraintLayout>(R.id.constraint_view)
+        sectionEdit = view.findViewById(R.id.constraint_edit)
+        sectionView = view.findViewById(R.id.constraint_view)
 
         val inputNama = view.findViewById<TextInputLayout>(R.id.input_nama)
         val inputUrl = view.findViewById<TextInputLayout>(R.id.input_url)
         val inputDay = view.findViewById<TextInputLayout>(R.id.input_day)
 
-        val items = listOf("Material", "Design", "Components", "Android")
+        val tvNama = view.findViewById<MaterialTextView>(R.id.tv_name)
+        val tvUrl = view.findViewById<MaterialTextView>(R.id.tv_url)
+        val tvDay = view.findViewById<MaterialTextView>(R.id.tv_day)
+
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (inputDay.editText as? AutoCompleteTextView)?.setAdapter(adapter)
 
@@ -91,7 +122,7 @@ class DetailFragment : Fragment() {
         if (todo_id != 0) {
             sectionEdit.visibility = View.GONE
             sectionView.visibility = View.VISIBLE
-            // fetch data to section View
+            prefs.token?.let { vm.getOne(todo_id, it) }
         } else {
             sectionEdit.visibility = View.VISIBLE
             sectionView.visibility = View.GONE
@@ -104,7 +135,6 @@ class DetailFragment : Fragment() {
         btnEdit.setOnClickListener {
             sectionEdit.visibility = View.VISIBLE
             sectionView.visibility = View.GONE
-            // fetch data to input-field
         }
 
         btnDelete.setOnClickListener {
@@ -125,6 +155,14 @@ class DetailFragment : Fragment() {
             }
             btnSave.setOnClickListener {
                 // request save Todo Item with ID
+                Log.e("DAY", inputDay.editText?.text.toString())
+                vm.update(
+                    name = inputNama.editText?.text.toString(),
+                    url = inputUrl.editText?.text.toString(),
+                    day = dayToInt(inputDay.editText?.text.toString()),
+                    id = todo_id,
+                    pref = prefs.token.toString()
+                )
             }
         } else {
             btnSave.isEnabled = false
@@ -133,6 +171,98 @@ class DetailFragment : Fragment() {
             }
             btnSave.setOnClickListener {
                 // request post new Todo Item
+                Log.e("DAY", inputDay.editText?.text.toString())
+                vm.create(
+                    name = inputNama.editText?.text.toString(),
+                    url = inputUrl.editText?.text.toString(),
+                    day = dayToInt(inputDay.editText?.text.toString()),
+                    pref = prefs.token.toString()
+                )
+            }
+        }
+
+        /**
+         * View Model
+         */
+        vm.one.observe({ lifecycle }, { data ->
+            Log.e("DATA", data.toString())
+            if (data.status == true && todo_id != 0) {
+                todoItem = data.data!!
+                inputNama.editText?.setText(data.data?.name)
+                tvNama.text = data.data?.name
+                inputUrl.editText?.setText(data.data?.url)
+                tvUrl.text = data.data?.url
+                (inputDay.editText as? AutoCompleteTextView)?.setText(
+                    (inputDay.editText as? AutoCompleteTextView)?.getAdapter()?.getItem(
+                        data.data?.day!!
+                    ).toString(), false
+                )
+                tvDay.text = intToDay(data.data?.day)
+            } else {
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        vm.error.observe({ lifecycle }, { error ->
+            Toast.makeText(context, "Something error : " + error, Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    fun intToDay(d: Int?): String {
+        when (d) {
+            0 -> {
+                return "Senin"
+            }
+            1 -> {
+                return "Selasa"
+            }
+            2 -> {
+                return "Rabu"
+            }
+            3 -> {
+                return "Kamis"
+            }
+            4 -> {
+                return "Jumat"
+            }
+            5 -> {
+                return "Sabtu"
+            }
+            6 -> {
+                return "Minggu"
+            }
+            else -> {
+                return ""
+            }
+        }
+
+    }
+
+    fun dayToInt(d: String?): Int {
+        when (d) {
+            items[0] -> {
+                return 0
+            }
+            items[1] -> {
+                return 1
+            }
+            items[2] -> {
+                return 2
+            }
+            items[3] -> {
+                return 3
+            }
+            items[4] -> {
+                return 4
+            }
+            items[5] -> {
+                return 5
+            }
+            items[6] -> {
+                return 6
+            }
+            else -> {
+                return 0
             }
         }
     }

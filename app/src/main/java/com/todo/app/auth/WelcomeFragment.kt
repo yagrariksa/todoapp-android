@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -62,6 +63,8 @@ class WelcomeFragment : Fragment() {
         val login = view.findViewById<MaterialButton>(R.id.btn_login)
         val register = view.findViewById<MaterialButton>(R.id.btn_register)
 
+        val spinner = view.findViewById<ProgressBar>(R.id.pgb)
+
         login.setOnClickListener {
             findNavController().navigate(R.id.action_welcomeFragment_to_loginFragment)
         }
@@ -79,16 +82,15 @@ class WelcomeFragment : Fragment() {
         vm.status.observe({ lifecycle }, { status ->
             when (status) {
                 RequestState.REQUEST_START -> {
-                    Toast.makeText(context, "Checking Authentication Start", Toast.LENGTH_SHORT)
-                        .show()
+                    spinner.visibility = View.VISIBLE
                 }
                 RequestState.REQEUST_END -> {
-                    Toast.makeText(context, "Checking Authentication Finish", Toast.LENGTH_SHORT)
-                        .show()
+                    spinner.visibility = View.GONE
                     login.isEnabled = true
                     register.isEnabled = true
                 }
                 RequestState.REQUEST_ERROR -> {
+                    spinner.visibility = View.GONE
                     Toast.makeText(context, "Something Error : ", Toast.LENGTH_SHORT).show()
                     login.isEnabled = true
                     register.isEnabled = true
@@ -103,6 +105,7 @@ class WelcomeFragment : Fragment() {
                     .show()
                 val intent = Intent(context, DisplayActivity::class.java)
                 startActivity(intent)
+                activity?.finish()
             } else {
                 Toast.makeText(
                     context,

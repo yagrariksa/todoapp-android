@@ -12,7 +12,7 @@
         android:id="@+id/constraint_edit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
@@ -97,7 +97,7 @@
         android:id="@+id/constraint_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
@@ -158,7 +158,7 @@
                 android:text="Hari" />
 
             <com.google.android.material.textview.MaterialTextView
-                android:id="@+id/tv_da"
+                android:id="@+id/tv_day"
                 style="@style/tv_detail_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -3,6 +3,7 @@ package com.todo.app.network
 import android.util.Log
 import com.todo.app.models.Acc
 import com.todo.app.models.DefaultResponse
+import com.todo.app.models.Todo
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -78,5 +79,51 @@ object ApiFactory {
             apiService.register(name, email, password)
         }
     }
+
+    suspend fun getAll(
+        day: Int? = null,
+        prefs: String? = null
+    ): Result<DefaultResponse<List<Todo>>> {
+        return safeApiCall {
+            apiService.getAll(day, "Bearer " + prefs)
+        }
+    }
+
+    suspend fun getOne(
+        id: Int? = null,
+        prefs: String? = null
+    ): Result<DefaultResponse<Todo>> {
+        return safeApiCall {
+            apiService.getOne(id, "Bearer " + prefs)
+        }
+    }
+
+    suspend fun create(
+        name: String? = null,
+        url: String? = null,
+        day: Int? = null,
+        prefs: String? = null
+    ): Result<DefaultResponse<Todo>> {
+        return safeApiCall {
+            apiService.create(
+                name, url, day, "Bearer " + prefs
+            )
+        }
+    }
+
+    suspend fun update(
+        name: String? = null,
+        url: String? = null,
+        day: Int? = null,
+        id: Int? = null,
+        prefs: String? = null
+    ): Result<DefaultResponse<Todo>> {
+        return safeApiCall {
+            apiService.update(
+                name, url, day, id, "Bearer " + prefs
+            )
+        }
+    }
+
 
 }
