@@ -69,4 +69,14 @@ object ApiFactory {
         }
     }
 
+    suspend fun register(
+        name: String? = null,
+        email: String? = null,
+        password: String? = null
+    ): Result<DefaultResponse<Acc>> {
+        return safeApiCall {
+            apiService.register(name, email, password)
+        }
+    }
+
 }

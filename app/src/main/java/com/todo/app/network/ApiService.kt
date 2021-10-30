@@ -18,4 +18,12 @@ interface ApiService {
         @Header("Authorization") pref: String? = null,
         @Header("Accept") accept: String = "application/json",
     ): Response<DefaultResponse<Acc>>
+
+    @POST("register")
+    @FormUrlEncoded
+    suspend fun register(
+        @Field("name") name: String? = null,
+        @Field("email") email: String? = null,
+        @Field("password") password: String? = null,
+    ): Response<DefaultResponse<Acc>>
 }

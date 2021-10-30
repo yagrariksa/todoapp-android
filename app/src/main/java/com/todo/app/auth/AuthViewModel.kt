@@ -97,4 +97,36 @@ class AuthViewModel : ViewModel() {
     }
 
 
+    fun register(
+        name: String,
+        email: String,
+        password: String,
+    ) {
+        _status.postValue(RequestState.REQUEST_START)
+        Log.e(
+            "IDENTITY", name + " " + email + " " + password
+        )
+        uiScope.launch {
+            try {
+                when (val response = ApiFactory.register(name, email, password)) {
+                    is Result.Success -> {
+                        _status.postValue(RequestState.REQEUST_END)
+                        _data.postValue(response.data)
+                    }
+                    is Result.Error -> {
+                        _status.postValue(RequestState.REQUEST_ERROR)
+                        _data.postValue(
+                            Gson().fromJson(
+                                response.exception,
+                                DefaultResponse::class.java
+                            ) as DefaultResponse<Acc>
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                _status.postValue(RequestState.REQUEST_ERROR)
+                _error.postValue(e.localizedMessage)
+            }
+        }
+    }
 }

@@ -133,17 +133,17 @@ class LoginFragment : Fragment() {
             when (status) {
                 RequestState.REQUEST_ERROR -> {
                     login.isEnabled = true
-
+                    Toast.makeText(context, "Something Error", Toast.LENGTH_SHORT).show()
                 }
 
                 RequestState.REQUEST_START -> {
                     login.isEnabled = false
-
+                    Toast.makeText(context, "Sending Request...", Toast.LENGTH_SHORT).show()
                 }
 
                 RequestState.REQEUST_END -> {
                     login.isEnabled = true
-
+                    Toast.makeText(context, "Waiting Response", Toast.LENGTH_SHORT).show()
                 }
             }
         })
