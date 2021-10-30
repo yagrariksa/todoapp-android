@@ -1,5 +1,6 @@
 package com.todo.app.auth
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -72,6 +73,21 @@ class AuthViewModel : ViewModel() {
         _status.postValue(RequestState.REQUEST_START)
         uiScope.launch {
             try {
+                when (val response = ApiFactory.check(pref)) {
+                    is Result.Success -> {
+                        _status.postValue(RequestState.REQEUST_END)
+                        _data.postValue(response.data)
+                    }
+                    is Result.Error -> {
+                        _status.postValue(RequestState.REQUEST_ERROR)
+                        _data.postValue(
+                            Gson().fromJson(
+                                response.exception,
+                                DefaultResponse::class.java
+                            ) as DefaultResponse<Acc>
+                        )
+                    }
+                }
 
             } catch (e: Exception) {
                 _status.postValue(RequestState.REQUEST_ERROR)

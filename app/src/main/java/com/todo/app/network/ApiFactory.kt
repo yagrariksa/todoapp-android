@@ -61,4 +61,12 @@ object ApiFactory {
         }
     }
 
+    suspend fun check(
+        pref: String? = null
+    ): Result<DefaultResponse<Acc>> {
+        return safeApiCall {
+            apiService.check("Bearer " + pref)
+        }
+    }
+
 }

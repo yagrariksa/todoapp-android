@@ -10,7 +10,9 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.textview.MaterialTextView
 import com.todo.app.R
+import com.todo.app.prefs.Preferences
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -27,12 +29,20 @@ class MainFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private lateinit var mLayoutManager: RecyclerView.LayoutManager
+    private lateinit var mAdapter: TodoAdapter
+    private lateinit var prefs: Preferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        mLayoutManager = LinearLayoutManager(context)
+        mAdapter = TodoAdapter(R.id.action_mainFragment_to_detailFragment)
+        prefs = Preferences(requireContext())
     }
 
     override fun onCreateView(
@@ -43,12 +53,12 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_main, container, false)
     }
 
-    private var layoutManager: RecyclerView.LayoutManager? = null
-    private var adapter: TodoAdapter? = null
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val tvTitle = view.findViewById<MaterialTextView>(R.id.tv_title)
+        tvTitle.text = "Halo " + prefs.userName.toString()
 
         val btnDaily = view.findViewById<MaterialButton>(R.id.btn_jadwal_harian)
         btnDaily.setOnClickListener {
@@ -62,8 +72,8 @@ class MainFragment : Fragment() {
 
         val rvMain = view.findViewById<RecyclerView>(R.id.rv_main)
         rvMain.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = TodoAdapter(R.id.action_mainFragment_to_detailFragment)
+            layoutManager = mLayoutManager
+            adapter = mAdapter
         }
     }
 
