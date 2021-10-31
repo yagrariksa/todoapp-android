@@ -8,12 +8,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.ImageButton
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
@@ -21,6 +19,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
 import com.todo.app.R
 import com.todo.app.models.Todo
+import com.todo.app.network.RequestState
 import com.todo.app.prefs.Preferences
 import java.time.DayOfWeek
 
@@ -40,6 +39,8 @@ class DetailFragment : Fragment() {
     private var param2: String? = null
     private var todo_id: Int = 0
 
+    private var action: String? = null
+
     private val items = listOf("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
 
     private lateinit var todoItem: Todo
@@ -48,6 +49,9 @@ class DetailFragment : Fragment() {
 
     private lateinit var sectionEdit: ConstraintLayout
     private lateinit var sectionView: ConstraintLayout
+
+    private lateinit var spinnerView: ProgressBar
+    private lateinit var spinnerEdit: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +93,9 @@ class DetailFragment : Fragment() {
         sectionEdit = view.findViewById(R.id.constraint_edit)
         sectionView = view.findViewById(R.id.constraint_view)
 
+        spinnerView = view.findViewById(R.id.pgb_view)
+        spinnerEdit = view.findViewById(R.id.pgb_edit)
+
         val inputNama = view.findViewById<TextInputLayout>(R.id.input_nama)
         val inputUrl = view.findViewById<TextInputLayout>(R.id.input_url)
         val inputDay = view.findViewById<TextInputLayout>(R.id.input_day)
@@ -122,7 +129,10 @@ class DetailFragment : Fragment() {
         if (todo_id != 0) {
             sectionEdit.visibility = View.GONE
             sectionView.visibility = View.VISIBLE
-            prefs.token?.let { vm.getOne(todo_id, it) }
+            prefs.token?.let {
+                vm.getOne(todo_id, it)
+                action = "getOne"
+            }
         } else {
             sectionEdit.visibility = View.VISIBLE
             sectionView.visibility = View.GONE
@@ -138,7 +148,12 @@ class DetailFragment : Fragment() {
         }
 
         btnDelete.setOnClickListener {
-            // request to Delete Todo Item
+            spinnerView.visibility = View.VISIBLE
+            btnEdit.isEnabled = false
+            btnDelete.isEnabled = false
+
+            action = "delete"
+            vm.delete(todo_id, prefs.token.toString())
         }
 
         btnClose.setOnClickListener {
@@ -155,7 +170,11 @@ class DetailFragment : Fragment() {
             }
             btnSave.setOnClickListener {
                 // request save Todo Item with ID
-                Log.e("DAY", inputDay.editText?.text.toString())
+                spinnerEdit.visibility = View.VISIBLE
+                btnCancel.isEnabled = false
+                btnSave.isEnabled = false
+
+                action = "save"
                 vm.update(
                     name = inputNama.editText?.text.toString(),
                     url = inputUrl.editText?.text.toString(),
@@ -171,7 +190,11 @@ class DetailFragment : Fragment() {
             }
             btnSave.setOnClickListener {
                 // request post new Todo Item
-                Log.e("DAY", inputDay.editText?.text.toString())
+                spinnerEdit.visibility = View.VISIBLE
+                btnCancel.isEnabled = false
+                btnSave.isEnabled = false
+
+                action = "create"
                 vm.create(
                     name = inputNama.editText?.text.toString(),
                     url = inputUrl.editText?.text.toString(),
@@ -184,23 +207,69 @@ class DetailFragment : Fragment() {
         /**
          * View Model
          */
+        vm.status.observe({ lifecycle }, { status ->
+            when (status) {
+                RequestState.REQUEST_START -> {
+
+                }
+
+                RequestState.REQEUST_END -> {
+                    if (action == "delete") {
+                        spinnerView.visibility = View.GONE
+                        btnEdit.isEnabled = true
+                        btnDelete.isEnabled = true
+                    } else if (action == "save" || action == "create") {
+                        spinnerEdit.visibility = View.GONE
+                        btnCancel.isEnabled = true
+                        btnSave.isEnabled = true
+                    }
+                }
+
+                RequestState.REQUEST_ERROR -> {
+                    if (action == "delete") {
+                        spinnerView.visibility = View.GONE
+                        btnEdit.isEnabled = true
+                        btnDelete.isEnabled = true
+                    } else if (action == "save" || action == "create") {
+                        spinnerEdit.visibility = View.GONE
+                        btnCancel.isEnabled = true
+                        btnSave.isEnabled = true
+                    }
+                }
+            }
+        })
+
         vm.one.observe({ lifecycle }, { data ->
             Log.e("DATA", data.toString())
-            if (data.status == true && todo_id != 0) {
-                todoItem = data.data!!
-                inputNama.editText?.setText(data.data?.name)
-                tvNama.text = data.data?.name
-                inputUrl.editText?.setText(data.data?.url)
-                tvUrl.text = data.data?.url
+            Log.e("ACTION", action.toString())
+            if (data.status == true && todo_id != 0 && action != "delete" && data.data != null) {
+                todoItem = data.data
+                todo_id = data.data.id!!
+                inputNama.editText?.setText(data.data.name)
+                tvNama.text = data.data.name
+                inputUrl.editText?.setText(data.data.url)
+                tvUrl.text = data.data.url
                 (inputDay.editText as? AutoCompleteTextView)?.setText(
                     (inputDay.editText as? AutoCompleteTextView)?.getAdapter()?.getItem(
-                        data.data?.day!!
+                        data.data.day!!
                     ).toString(), false
                 )
-                tvDay.text = intToDay(data.data?.day)
+                tvDay.text = intToDay(data.data.day)
+
+            } else if (data.status == true && action == "delete") {
+                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
             } else {
                 Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
             }
+
+            if (action == "save") {
+                sectionEdit.visibility = View.GONE
+                sectionView.visibility = View.VISIBLE
+            }else if(action == "create"){
+                findNavController().popBackStack()
+            }
+
         })
 
         vm.error.observe({ lifecycle }, { error ->

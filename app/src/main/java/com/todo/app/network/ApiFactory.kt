@@ -125,5 +125,17 @@ object ApiFactory {
         }
     }
 
+    suspend fun delete(
+        id: Int? = null,
+        prefs: String? = null
+    ): Result<DefaultResponse<Todo>> {
+        return safeApiCall {
+            apiService.delete(
+                id = id,
+                pref = "Bearer " + prefs
+            )
+        }
+    }
+
 
 }

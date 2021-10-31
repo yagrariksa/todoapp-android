@@ -152,6 +152,11 @@ class MainFragment : Fragment() {
         vm.getAll(dayOfWeek, prefs.token.toString())
     }
 
+    override fun onResume() {
+        super.onResume()
+        vm.getAll(dayOfWeek, prefs.token.toString())
+    }
+
     companion object {
         /**
          * Use this factory method to create a new instance of

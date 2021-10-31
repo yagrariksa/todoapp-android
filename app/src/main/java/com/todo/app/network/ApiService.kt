@@ -55,6 +55,13 @@ interface ApiService {
         @Header("Accept") accept: String = "application/json",
     ): Response<DefaultResponse<Todo>>
 
+    @DELETE("todo")
+    suspend fun delete(
+        @Query("id") id: Int? = null,
+        @Header("Authorization") pref: String? = null,
+        @Header("Accept") accept: String = "application/json",
+    ): Response<DefaultResponse<Todo>>
+
     @GET("todo/one")
     suspend fun getOne(
         @Query("id") id: Int? = null,

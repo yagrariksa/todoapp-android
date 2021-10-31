@@ -119,7 +119,7 @@ class DailyFragment : Fragment() {
             when (status) {
                 RequestState.REQUEST_START -> {
                     mAdapter.clearData()
-                    if (!swipeRefreshLayout.isRefreshing){
+                    if (!swipeRefreshLayout.isRefreshing) {
                         spinner.visibility = View.VISIBLE
                     }
                 }
@@ -127,8 +127,8 @@ class DailyFragment : Fragment() {
                     if (swipeRefreshLayout.isRefreshing) {
                         Toast.makeText(context, "finish collect data", Toast.LENGTH_SHORT)
                             .show()
-                        swipeRefreshLayout . isRefreshing = false
-                    }else{
+                        swipeRefreshLayout.isRefreshing = false
+                    } else {
                         spinner.visibility = View.GONE
                     }
                 }
@@ -136,8 +136,8 @@ class DailyFragment : Fragment() {
                     if (swipeRefreshLayout.isRefreshing) {
                         Toast.makeText(context, "finish collect data", Toast.LENGTH_SHORT)
                             .show()
-                        swipeRefreshLayout . isRefreshing = false
-                    }else{
+                        swipeRefreshLayout.isRefreshing = false
+                    } else {
                         spinner.visibility = View.GONE
                     }
                 }
@@ -159,6 +159,11 @@ class DailyFragment : Fragment() {
 
         vm.getAll(day, prefs.token.toString())
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        vm.getAll(day, prefs.token.toString())
     }
 
     companion object {
