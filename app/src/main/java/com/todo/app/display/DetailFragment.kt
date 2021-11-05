@@ -17,6 +17,8 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputLayout
 import com.google.android.material.textview.MaterialTextView
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.todo.app.R
 import com.todo.app.models.Todo
 import com.todo.app.network.RequestState
@@ -90,6 +92,9 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var hour = 0
+        var minute = 0
+
         sectionEdit = view.findViewById(R.id.constraint_edit)
         sectionView = view.findViewById(R.id.constraint_view)
 
@@ -99,10 +104,21 @@ class DetailFragment : Fragment() {
         val inputNama = view.findViewById<TextInputLayout>(R.id.input_nama)
         val inputUrl = view.findViewById<TextInputLayout>(R.id.input_url)
         val inputDay = view.findViewById<TextInputLayout>(R.id.input_day)
+        val btnTimePicker = view.findViewById<MaterialButton>(R.id.btn_picker)
+        val tvClock = view.findViewById<MaterialTextView>(R.id.tv_clock)
+
+        val timePicker =
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(12)
+                .setMinute(10)
+                .setTitleText("Pilih jam")
+                .build()
 
         val tvNama = view.findViewById<MaterialTextView>(R.id.tv_name)
         val tvUrl = view.findViewById<MaterialTextView>(R.id.tv_url)
         val tvDay = view.findViewById<MaterialTextView>(R.id.tv_day)
+        val tvDisplayClock = view.findViewById<MaterialTextView>(R.id.tv_display_clock)
 
         val adapter = ArrayAdapter(requireContext(), R.layout.list_item, items)
         (inputDay.editText as? AutoCompleteTextView)?.setAdapter(adapter)
@@ -163,6 +179,15 @@ class DetailFragment : Fragment() {
         /**
          * Section Edit
          */
+        btnTimePicker.setOnClickListener {
+            timePicker.show(parentFragmentManager, "TPICK")
+        }
+
+        timePicker.addOnPositiveButtonClickListener {
+            tvClock.text = timePicker.hour.toString() + ":" + timePicker.minute.toString()
+            hour = timePicker.hour
+            minute = timePicker.minute
+        }
         if (todo_id != 0) {
             btnCancel.setOnClickListener {
                 sectionEdit.visibility = View.GONE
@@ -177,10 +202,12 @@ class DetailFragment : Fragment() {
                 action = "save"
                 vm.update(
                     name = inputNama.editText?.text.toString(),
-                    url = inputUrl.editText?.text.toString(),
+                    url = "http://" + inputUrl.editText?.text.toString(),
                     day = dayToInt(inputDay.editText?.text.toString()),
                     id = todo_id,
-                    pref = prefs.token.toString()
+                    pref = prefs.token.toString(),
+                    hour = hour,
+                    minute = minute
                 )
             }
         } else {
@@ -197,9 +224,11 @@ class DetailFragment : Fragment() {
                 action = "create"
                 vm.create(
                     name = inputNama.editText?.text.toString(),
-                    url = inputUrl.editText?.text.toString(),
+                    url = "http://" + inputUrl.editText?.text.toString(),
                     day = dayToInt(inputDay.editText?.text.toString()),
-                    pref = prefs.token.toString()
+                    pref = prefs.token.toString(),
+                    hour = hour,
+                    minute = minute
                 )
             }
         }
@@ -247,7 +276,7 @@ class DetailFragment : Fragment() {
                 todo_id = data.data.id!!
                 inputNama.editText?.setText(data.data.name)
                 tvNama.text = data.data.name
-                inputUrl.editText?.setText(data.data.url)
+                inputUrl.editText?.setText(data.data.url?.split("//")?.get(1))
                 tvUrl.text = data.data.url
                 (inputDay.editText as? AutoCompleteTextView)?.setText(
                     (inputDay.editText as? AutoCompleteTextView)?.getAdapter()?.getItem(
@@ -255,6 +284,10 @@ class DetailFragment : Fragment() {
                     ).toString(), false
                 )
                 tvDay.text = intToDay(data.data.day)
+                data.data.hour?.let { hour = it }
+                data.data.minute?.let { minute = it }
+                tvClock.text = hour.toString() + ":" + minute.toString()
+                tvDisplayClock.text = hour.toString() + ":" + minute.toString()
 
             } else if (data.status == true && action == "delete") {
                 Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
@@ -266,7 +299,7 @@ class DetailFragment : Fragment() {
             if (action == "save") {
                 sectionEdit.visibility = View.GONE
                 sectionView.visibility = View.VISIBLE
-            }else if(action == "create"){
+            } else if (action == "create") {
                 findNavController().popBackStack()
             }
 

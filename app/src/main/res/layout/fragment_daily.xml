@@ -17,9 +17,10 @@
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/tv1"
+            style="@style/tv_app_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/hello_blank_fragment"
+            android:text="Jadwal Harian"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -133,6 +134,7 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_add_todo"
+        style="@style/btn_primary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="tambah todo list"
@@ -157,11 +159,24 @@
         app:layout_constraintBottom_toTopOf="@id/btn_add_todo"
         app:layout_constraintTop_toBottomOf="@id/separator2">
 
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_daily"
             android:layout_width="match_parent"
             android:layout_height="0dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tv_none"
+        style="@style/tv_error"
+        android:text="tidak ada item"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btn_add_todo"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/separator2"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

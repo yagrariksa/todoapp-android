@@ -3,6 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/drawable/btn_primary.xml" value="0.2203125" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout-night/fragment_welcome.xml" value="0.12" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_daily.xml" value="0.13405797101449277" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_detail.xml" value="0.25" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_login.xml" value="0.13405797101449277" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_main.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_menu.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_register.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/fragment_welcome.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/list_item.xml" value="0.1" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/layout/todo_item.xml" value="0.22" />
+        <entry key="..\:/yer/todoapp-android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.2203125" />
         <entry key="app/src/main/res/layout/activity_display.xml" value="0.19427083333333334" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3111413043478261" />
         <entry key="app/src/main/res/layout/fragment_daily.xml" value="0.25" />

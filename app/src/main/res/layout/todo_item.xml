@@ -14,4 +14,12 @@
         android:layout_height="match_parent"
         android:text="hey" />
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_url"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="buka URL"
+        android:layout_gravity="end"
+        android:backgroundTint="@color/black"/>
+
 </androidx.cardview.widget.CardView>

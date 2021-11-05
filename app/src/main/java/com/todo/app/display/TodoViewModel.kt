@@ -104,12 +104,21 @@ class TodoViewModel : ViewModel() {
         name: String,
         url: String,
         day: Int,
-        pref: String
+        pref: String,
+        hour: Int,
+        minute: Int
     ) {
         _status.postValue(RequestState.REQUEST_START)
         uiScope.launch {
             try {
-                when (val response = ApiFactory.create(name, url, day, pref)) {
+                when (val response = ApiFactory.create(
+                    name = name,
+                    url = url,
+                    day = day,
+                    prefs = pref,
+                    hour = hour,
+                    minute = minute
+                )) {
                     is Result.Success -> {
                         _status.postValue(RequestState.REQEUST_END)
                         _one.postValue(response.data)
@@ -136,12 +145,22 @@ class TodoViewModel : ViewModel() {
         url: String,
         day: Int,
         id: Int,
-        pref: String
+        pref: String,
+        hour: Int,
+        minute: Int
     ) {
         _status.postValue(RequestState.REQUEST_START)
         uiScope.launch {
             try {
-                when (val response = ApiFactory.update(name, url, day, id, pref)) {
+                when (val response = ApiFactory.update(
+                    name = name,
+                    url = url,
+                    day = day,
+                    id = id,
+                    prefs = pref,
+                    hour = hour,
+                    minute = minute
+                )) {
                     is Result.Success -> {
                         _status.postValue(RequestState.REQEUST_END)
                         _one.postValue(response.data)

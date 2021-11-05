@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
     android:padding="16dp"
     tools:context=".display.DetailFragment">
 
@@ -12,7 +11,7 @@
         android:id="@+id/constraint_edit"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_cancel"
@@ -34,6 +33,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save"
+            style="@style/btn_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="simpan"
@@ -76,6 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                app:prefixText="http://"
                 android:hint="Link / URL aplikasi atau semacamnya">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -98,6 +99,27 @@
                     android:inputType="none" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tv_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_picker"
+                    style="@style/btn_primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:text="Pilih jam" />
+            </LinearLayout>
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -106,12 +128,13 @@
         android:id="@+id/constraint_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <com.google.android.material.textview.MaterialTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="My Todo Item"
+            style="@style/tv_app_bar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -173,6 +196,19 @@
                 android:layout_height="wrap_content"
                 android:text="Senin" />
 
+            <com.google.android.material.textview.MaterialTextView
+                style="@style/tv_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Jam" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tv_display_clock"
+                style="@style/tv_detail_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00" />
+
         </LinearLayout>
 
         <ProgressBar
@@ -189,15 +225,16 @@
             style="@style/btn_delete_outline"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Delete / Hapus"
+            android:text="Delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_edit"
+            style="@style/btn_primary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit / Ubah"
+            android:text="Edit"
             app:layout_constraintBottom_toTopOf="@id/btn_delete"
             app:layout_constraintStart_toStartOf="parent" />
 

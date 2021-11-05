@@ -41,6 +41,8 @@ interface ApiService {
         @Field("name") name: String? = null,
         @Field("url") url: String? = null,
         @Field("day") day: Int? = null,
+        @Field("hour") hour: Int? = null,
+        @Field("minute") minute: Int? = null,
         @Header("Authorization") pref: String? = null,
         @Header("Accept") accept: String = "application/json",
     ): Response<DefaultResponse<Todo>>
@@ -51,6 +53,8 @@ interface ApiService {
         @Query("url") url: String? = null,
         @Query("day") day: Int? = null,
         @Query("id") id: Int? = null,
+        @Query("hour") hour: Int? = null,
+        @Query("minute") minute: Int? = null,
         @Header("Authorization") pref: String? = null,
         @Header("Accept") accept: String = "application/json",
     ): Response<DefaultResponse<Todo>>

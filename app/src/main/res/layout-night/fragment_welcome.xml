@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@color/black"
     tools:context=".auth.WelcomeFragment">
 
     <LinearLayout
@@ -34,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="64dp"
-        android:src="@drawable/icon_bg_white"
+        android:src="@drawable/icon_bg_black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

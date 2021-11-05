@@ -15,4 +15,10 @@ data class Todo(
     @SerializedName("day")
     val day: Int? = null,
 
+    @SerializedName("hour")
+    val hour: Int? = null,
+
+    @SerializedName("minute")
+    val minute: Int? = null,
+
     )

@@ -102,11 +102,18 @@ object ApiFactory {
         name: String? = null,
         url: String? = null,
         day: Int? = null,
-        prefs: String? = null
+        prefs: String? = null,
+        hour: Int? = null,
+        minute: Int? = null,
     ): Result<DefaultResponse<Todo>> {
         return safeApiCall {
             apiService.create(
-                name, url, day, "Bearer " + prefs
+                name = name,
+                url = url,
+                day = day,
+                pref = "Bearer " + prefs,
+                hour = hour,
+                minute = minute
             )
         }
     }
@@ -116,11 +123,19 @@ object ApiFactory {
         url: String? = null,
         day: Int? = null,
         id: Int? = null,
-        prefs: String? = null
+        prefs: String? = null,
+        hour: Int? = null,
+        minute: Int? = null,
     ): Result<DefaultResponse<Todo>> {
         return safeApiCall {
             apiService.update(
-                name, url, day, id, "Bearer " + prefs
+                name = name,
+                url = url,
+                day = day,
+                id = id,
+                pref = "Bearer " + prefs,
+                hour = hour,
+                minute = minute
             )
         }
     }

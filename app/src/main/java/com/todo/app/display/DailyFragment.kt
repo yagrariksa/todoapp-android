@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.textview.MaterialTextView
 import com.todo.app.R
 import com.todo.app.network.RequestState
 import com.todo.app.prefs.Preferences
@@ -62,6 +63,8 @@ class DailyFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val tvNone = view.findViewById<MaterialTextView>(R.id.tv_none)
 
         val btnClose = view.findViewById<ImageButton>(R.id.btn_close)
         btnClose.setOnClickListener {
@@ -147,9 +150,12 @@ class DailyFragment : Fragment() {
         vm.data.observe({ lifecycle }, { data ->
             Log.e("DATA", data.toString())
             if (data.status == true) {
+                tvNone.visibility = View.GONE
                 data.data?.let { mAdapter.supplyData(it) }
             } else {
-                Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
+                tvNone.text = data.message
+                tvNone.visibility = View.VISIBLE
+                // Toast.makeText(context, data.message, Toast.LENGTH_SHORT).show()
             }
         })
 
