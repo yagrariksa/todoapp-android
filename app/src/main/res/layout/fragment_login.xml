@@ -78,7 +78,6 @@
         app:layout_constraintTop_toBottomOf="@id/btn_login" />
 
     <com.google.android.material.button.MaterialButton
-        android:visibility="gone"
         android:id="@+id/btn_register"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
